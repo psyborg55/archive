@@ -195,6 +195,7 @@ void __init ath79_register_mdio(unsigned int id, u32 phy_mask)
 	case ATH79_SOC_AR7241:
 	case ATH79_SOC_AR9330:
 	case ATH79_SOC_AR9331:
+	case ATH79_SOC_QCA9531:
 		mdio_dev = &ath79_mdio1_device;
 		mdio_data = &ath79_mdio1_data;
 		break;
@@ -249,6 +250,9 @@ void __init ath79_register_mdio(unsigned int id, u32 phy_mask)
 			mdio_data->mdio_clock = 6250000;
 		}
 		mdio_data->is_ar934x = 1;
+		break;
+	case ATH79_SOC_QCA9531:
+		mdio_data->builtin_switch = 1;
 		break;
 	case ATH79_SOC_QCA9558:
 		if (id == 1)
@@ -540,6 +544,7 @@ static void __init ath79_init_eth_pll_data(unsigned int id)
 	case ATH79_SOC_AR9341:
 	case ATH79_SOC_AR9342:
 	case ATH79_SOC_AR9344:
+	case ATH79_SOC_QCA9531:
 	case ATH79_SOC_QCA9558:
 		pll_10 = AR934X_PLL_VAL_10;
 		pll_100 = AR934X_PLL_VAL_100;
@@ -596,6 +601,7 @@ static int __init ath79_setup_phy_if_mode(unsigned int id,
 		case ATH79_SOC_AR7241:
 		case ATH79_SOC_AR9330:
 		case ATH79_SOC_AR9331:
+		case ATH79_SOC_QCA9531:
 			pdata->phy_if_mode = PHY_INTERFACE_MODE_MII;
 			break;
 
@@ -654,6 +660,7 @@ static int __init ath79_setup_phy_if_mode(unsigned int id,
 		case ATH79_SOC_AR9341:
 		case ATH79_SOC_AR9342:
 		case ATH79_SOC_AR9344:
+		case ATH79_SOC_QCA9531:
 		case ATH79_SOC_QCA9558:
 			switch (pdata->phy_if_mode) {
 			case PHY_INTERFACE_MODE_MII:
@@ -885,11 +892,14 @@ void __init ath79_register_eth(unsigned int id)
 	case ATH79_SOC_AR9341:
 	case ATH79_SOC_AR9342:
 	case ATH79_SOC_AR9344:
+	case ATH79_SOC_QCA9531:
 	case ATH79_SOC_QCA9558:
 		if (id == 0) {
 			pdata->reset_bit = AR934X_RESET_GE0_MAC |
 					   AR934X_RESET_GE0_MDIO;
 			pdata->set_speed = ar934x_set_speed_ge0;
+			if (ath79_soc == ATH79_SOC_QCA9531)
+				pdata->disable_inline_checksum_engine = 1;
 		} else {
 			pdata->reset_bit = AR934X_RESET_GE1_MAC |
 					   AR934X_RESET_GE1_MDIO;
@@ -953,6 +963,7 @@ void __init ath79_register_eth(unsigned int id)
 		case ATH79_SOC_AR7241:
 		case ATH79_SOC_AR9330:
 		case ATH79_SOC_AR9331:
+		case ATH79_SOC_QCA9531:
 			pdata->mii_bus_dev = &ath79_mdio1_device.dev;
 			break;
 
